@@ -17,14 +17,14 @@ namespace Chess.Core
 		public const int BlackIndex = 1;
 
 		// Stores piece code for each square on the board
-		public readonly int[] Square;
+		public readonly int[] Square = new int[64];
 		// Square index of white and black king
-		public int[] KingSquare;
+		public int[] KingSquare = new int[2];
 		// # Bitboards
 		// Bitboard for each piece type and colour (white pawns, white knights, ... black pawns, etc.)
-		public ulong[] PieceBitboards;
+		public ulong[] PieceBitboards = new ulong[Piece.MaxPieceIndex + 1];
 		// Bitboards for all pieces of either colour (all white pieces, all black pieces)
-		public ulong[] ColourBitboards;
+		public ulong[] ColourBitboards = new ulong[2];
 		public ulong AllPiecesBitboard;
 		public ulong FriendlyOrthogonalSliders;
 		public ulong FriendlyDiagonalSliders;
@@ -33,11 +33,11 @@ namespace Chess.Core
 		// Piece count excluding pawns and kings
 		public int TotalPieceCountWithoutPawnsAndKings;
 		// # Piece lists
-		public PieceList[] Rooks;
-		public PieceList[] Bishops;
-		public PieceList[] Queens;
-		public PieceList[] Knights;
-		public PieceList[] Pawns;
+		public PieceList[] Rooks = [new(10), new(10)];
+		public PieceList[] Bishops = [new(10), new(10)];
+		public PieceList[] Queens = [new(9), new(9)];
+		public PieceList[] Knights = [new(10), new(10)];
+		public PieceList[] Pawns = [new(8), new(8)];
 
 		// # Side to move info
 		public bool IsWhiteToMove;
@@ -46,16 +46,16 @@ namespace Chess.Core
 		public int MoveColourIndex => IsWhiteToMove ? WhiteIndex : BlackIndex;
 		public int OpponentColourIndex => IsWhiteToMove ? BlackIndex : WhiteIndex;
 		// List of (hashed) positions since last pawn move or capture (for detecting repetitions)
-		public Stack<ulong> RepetitionPositionHistory;
+		public Stack<ulong> RepetitionPositionHistory = new(capacity: 64);
 
 		// Total plies (half-moves) played in game
 		public int PlyCount;
 		public int FiftyMoveCounter => CurrentGameState.fiftyMoveCounter;
 		public GameState CurrentGameState;
 		public ulong ZobristKey => CurrentGameState.zobristKey;
-		public string CurrentFEN => FenUtility.CurrentFen(this);
-		public string GameStartFEN => StartPositionInfo.fen;
-		public List<Move> AllGameMoves;
+		public string CurrentFen => FenUtility.CurrentFen(this);
+		public string GameStartFen => StartPositionInfo.fen;
+		public List<Move> AllGameMoves = [];
 
 
 		// # Private stuff
@@ -64,11 +64,6 @@ namespace Chess.Core
 		FenUtility.PositionInfo StartPositionInfo;
 		bool cachedInCheckValue;
 		bool hasCachedInCheckValue;
-
-		public Board()
-		{
-			Square = new int[64];
-		}
 
 		// Make a move on the board
 		// The inSearch parameter controls whether this move should be recorded in the game history.
@@ -549,7 +544,7 @@ namespace Chess.Core
 
 		void Initialize()
 		{
-			AllGameMoves = new List<Move>();
+			AllGameMoves = [];
 			KingSquare = new int[2];
 			Array.Clear(Square);
 
@@ -559,11 +554,11 @@ namespace Chess.Core
 			CurrentGameState = new GameState();
 			PlyCount = 0;
 
-			Knights = new PieceList[] { new PieceList(10), new PieceList(10) };
-			Pawns = new PieceList[] { new PieceList(8), new PieceList(8) };
-			Rooks = new PieceList[] { new PieceList(10), new PieceList(10) };
-			Bishops = new PieceList[] { new PieceList(10), new PieceList(10) };
-			Queens = new PieceList[] { new PieceList(9), new PieceList(9) };
+			Knights = [new PieceList(10), new PieceList(10)];
+			Pawns = [new PieceList(8), new PieceList(8)];
+			Rooks = [new PieceList(10), new PieceList(10)];
+			Bishops = [new PieceList(10), new PieceList(10)];
+			Queens = [new PieceList(9), new PieceList(9)];
 
 			allPieceLists = new PieceList[Piece.MaxPieceIndex + 1];
 			allPieceLists[Piece.WhitePawn] = Pawns[WhiteIndex];

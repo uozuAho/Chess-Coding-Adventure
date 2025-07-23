@@ -13,7 +13,7 @@ namespace Chess.Core
 
 		public static string CreatePGN(Board board, GameResult result, string whiteName = "", string blackName = "")
 		{
-			return CreatePGN(board.AllGameMoves.ToArray(), result, board.GameStartFEN, whiteName, blackName);
+			return CreatePGN(board.AllGameMoves.ToArray(), result, board.GameStartFen, whiteName, blackName);
 		}
 
 		public static string CreatePGN(Move[] moves, GameResult result, string startFen, string whiteName = "", string blackName = "")
