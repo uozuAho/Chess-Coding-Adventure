@@ -59,8 +59,8 @@ namespace Chess.Core
 
 
 		// # Private stuff
-		PieceList[] allPieceLists;
-		Stack<GameState> gameStateHistory;
+		PieceList[] allPieceLists = new PieceList[Piece.MaxPieceIndex + 1];
+		Stack<GameState> gameStateHistory = new();
 		FenUtility.PositionInfo StartPositionInfo;
 		bool cachedInCheckValue;
 		bool hasCachedInCheckValue;

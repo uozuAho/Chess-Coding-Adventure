@@ -34,7 +34,7 @@ namespace Chess.Core
 		ulong opponentSlidingAttackMap;
 
 		bool generateQuietMoves;
-		Board board;
+		Board board = new();
 		int currMoveIndex;
 
 		ulong enemyPieces;

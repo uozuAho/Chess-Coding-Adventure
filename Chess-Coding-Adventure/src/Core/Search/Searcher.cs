@@ -30,9 +30,9 @@
 		// Diagnostics
 		public SearchDiagnostics searchDiagnostics;
 		int currentIterationDepth;
-		System.Diagnostics.Stopwatch searchIterationTimer;
-		System.Diagnostics.Stopwatch searchTotalTimer;
-		public string debugInfo;
+		System.Diagnostics.Stopwatch searchIterationTimer = new ();
+		System.Diagnostics.Stopwatch searchTotalTimer = new();
+		public string debugInfo = string.Empty;
 
 		// References
 		readonly TranspositionTable transpositionTable;

@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Chess.Core
 {
 	public class OpeningBook
 	{
-		readonly Dictionary<string, BookMove[]> movesByPosition;
+		readonly Dictionary<string, BookMove[]?> movesByPosition;
 		readonly Random rng;
 
 		public OpeningBook(string file)
 		{
 			rng = new Random();
 			Span<string> entries = file.Trim(new char[] { ' ', '\n' }).Split("pos").AsSpan(1);
-			movesByPosition = new Dictionary<string, BookMove[]>(entries.Length);
+			movesByPosition = new Dictionary<string, BookMove[]?>(entries.Length);
 
 			for (int i = 0; i < entries.Length; i++)
 			{
@@ -20,7 +21,7 @@ namespace Chess.Core
 				string positionFen = entryData[0].Trim();
 				Span<string> allMoveData = entryData.AsSpan(1);
 
-				BookMove[] bookMoves = new BookMove[allMoveData.Length];
+				BookMove[]? bookMoves = new BookMove[allMoveData.Length];
 
 				for (int moveIndex = 0; moveIndex < bookMoves.Length; moveIndex++)
 				{
@@ -43,10 +44,13 @@ namespace Chess.Core
 		{
 			string positionFen = FenUtility.CurrentFen(board, alwaysIncludeEPSquare: false);
 			weightPow = Math.Clamp(weightPow, 0, 1);
-			if (movesByPosition.TryGetValue(RemoveMoveCountersFromFEN(positionFen), out BookMove[] moves))
+			if (movesByPosition.TryGetValue(RemoveMoveCountersFromFEN(positionFen), out BookMove[]? moves))
 			{
+                // just here to remove compiler warning, cannot be null
+                Debug.Assert(moves != null, nameof(moves) + " != null");
 				int totalPlayCount = 0;
-				foreach (BookMove move in moves)
+
+                foreach (BookMove move in moves)
 				{
 					totalPlayCount += WeightedPlayCount(move.numTimesPlayed);
 				}

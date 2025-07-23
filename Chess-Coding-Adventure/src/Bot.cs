@@ -69,10 +69,12 @@ public class Bot
 		double thinkTimeMs = myTimeRemainingMs / 40.0;
 		// Clamp think time if a maximum limit is imposed
 		if (useMaxThinkTime)
-		{
+#pragma warning disable CS0162 // Unreachable code detected
+        {
 			thinkTimeMs = Min(maxThinkTimeMs, thinkTimeMs);
 		}
-		// Add increment
+#pragma warning restore CS0162 // Unreachable code detected
+        // Add increment
 		if (myTimeRemainingMs > myIncrementMs * 2)
 		{
 			thinkTimeMs += myIncrementMs * 0.8;
@@ -145,7 +147,7 @@ public class Bot
 		{
 			return;
 		}
-		
+
 		if (currentSearchID == searchID)
 		{
 			EndSearch();

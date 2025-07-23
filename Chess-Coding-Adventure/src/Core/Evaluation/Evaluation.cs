@@ -14,7 +14,7 @@
 		static readonly int[] kingPawnShieldScores = { 4, 7, 4, 3, 6, 3 };
 
 		const float endgameMaterialStart = RookValue * 2 + BishopValue + KnightValue;
-		Board board;
+		Board board = new();
 
 		public EvaluationData whiteEval;
 		public EvaluationData blackEval;
