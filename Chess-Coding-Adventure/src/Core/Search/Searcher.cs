@@ -1,4 +1,6 @@
-﻿namespace Chess.Core
+﻿using System.Threading;
+
+namespace Chess.Core
 {
 	using System;
 	using static System.Math;
@@ -58,7 +60,7 @@
 			Search(1, 0, negativeInfinity, positiveInfinity);
 		}
 
-		public void StartSearch()
+		public void StartSearch(CancellationToken cancellationToken = default)
 		{
 			// Initialize search
 			bestEvalThisIteration = bestEval = 0;
@@ -78,8 +80,7 @@
 			searchTotalTimer = System.Diagnostics.Stopwatch.StartNew();
 
 			// Search
-			RunIterativeDeepeningSearch();
-
+			RunIterativeDeepeningSearch(cancellationToken);
 
 			// Finish up
 			// In the unlikely event that the search is cancelled before a best move can be found, take any move
@@ -89,12 +90,13 @@
 			}
 			OnSearchComplete?.Invoke(bestMove);
 			searchCancelled = false;
-		}
+            cancellationToken.ThrowIfCancellationRequested();
+        }
 
 		// Run iterative deepening. This means doing a full search with a depth of 1, then with a depth of 2, and so on.
 		// This allows the search to be cancelled at any time and still yield a useful result.
 		// Thanks to the transposition table and move ordering, this idea is not nearly as terrible as it sounds.
-		void RunIterativeDeepeningSearch()
+		void RunIterativeDeepeningSearch(CancellationToken cancellationToken)
 		{
 			for (int searchDepth = 1; searchDepth <= 256; searchDepth++)
 			{
@@ -103,6 +105,11 @@
 				searchIterationTimer.Restart();
 				currentIterationDepth = searchDepth;
 				Search(searchDepth, 0, negativeInfinity, positiveInfinity);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    searchCancelled = true;
+                }
 
 				if (searchCancelled)
 				{
@@ -117,6 +124,7 @@
 					}
 
 					debugInfo += "\nSearch aborted";
+
 					break;
 				}
 				else

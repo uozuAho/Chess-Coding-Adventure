@@ -33,4 +33,27 @@ public class SearcherTests
         // uncomment this to see some debug output
         // search.debugInfo.ShouldBeEmpty();
     }
+
+    [Fact]
+    public void SupportsCancellation()
+    {
+        var board = Board.CreateBoard();
+        var search = new Searcher(board);
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
+
+        Move? move = null;
+
+        try
+        {
+            search.StartSearch(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            move = search.BestMoveSoFar;
+        }
+
+        move.ShouldNotBeNull();
+        search.searchDiagnostics.numPositionsEvaluated.ShouldBeGreaterThan(10);
+    }
 }
