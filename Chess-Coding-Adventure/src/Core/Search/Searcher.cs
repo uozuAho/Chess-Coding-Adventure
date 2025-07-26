@@ -44,7 +44,7 @@ namespace Chess.Core
 		readonly Evaluation evaluation;
 		readonly Board board;
 
-		public Searcher(Board board)
+        public Searcher(Board board)
 		{
 			this.board = board;
 
@@ -60,7 +60,16 @@ namespace Chess.Core
 			Search(1, 0, negativeInfinity, positiveInfinity);
 		}
 
-		public void StartSearch(CancellationToken cancellationToken = default)
+        // this is just kept here to make it clear that it's possible to
+        // use without cancellation (eg. existing Chess-Adventure code),
+        // but not encouraged
+        [Obsolete("Don't use this, prefer StartSearch(CancellationToken)")]
+        public void StartSearch()
+        {
+            StartSearch(default);
+        }
+
+		public void StartSearch(CancellationToken cancellationToken)
 		{
 			// Initialize search
 			bestEvalThisIteration = bestEval = 0;
@@ -162,15 +171,24 @@ namespace Chess.Core
 			return (bestMove, bestEval);
 		}
 
-		public void EndSearch()
+        // this is just kept here to support existing Coding-Adventure stuff
+        [Obsolete("Don't use this, prefer StartSearch(CancellationToken)")]
+        public void EndSearch()
 		{
 			searchCancelled = true;
 		}
 
-
-		int Search(int plyRemaining, int plyFromRoot, int alpha, int beta, int numExtensions = 0, Move prevMove = default, bool prevWasCapture = false)
+		int Search(
+            int plyRemaining,
+            int plyFromRoot,
+            int alpha,
+            int beta,
+            int numExtensions = 0,
+            Move prevMove = default,
+            bool prevWasCapture = false,
+            CancellationToken cancellationToken = default)
 		{
-			if (searchCancelled)
+			if (searchCancelled || cancellationToken.IsCancellationRequested)
 			{
 				return 0;
 			}
@@ -220,7 +238,7 @@ namespace Chess.Core
 
 			if (plyRemaining == 0)
 			{
-				int evaluation = QuiescenceSearch(alpha, beta);
+				int evaluation = QuiescenceSearch(alpha, beta, cancellationToken);
 				return evaluation;
 			}
 
@@ -292,7 +310,7 @@ namespace Chess.Core
 				}
 				board.UnmakeMove(moves[i], inSearch: true);
 
-				if (searchCancelled)
+				if (searchCancelled || cancellationToken.IsCancellationRequested)
 				{
 					return 0;
 				}
@@ -352,9 +370,9 @@ namespace Chess.Core
 		}
 
 		// Search capture moves until a 'quiet' position is reached.
-		int QuiescenceSearch(int alpha, int beta)
+		int QuiescenceSearch(int alpha, int beta, CancellationToken cancellationToken)
 		{
-			if (searchCancelled)
+			if (searchCancelled || cancellationToken.IsCancellationRequested)
 			{
 				return 0;
 			}
@@ -379,7 +397,7 @@ namespace Chess.Core
 			for (int i = 0; i < moves.Length; i++)
 			{
 				board.MakeMove(moves[i], true);
-				eval = -QuiescenceSearch(-beta, -alpha);
+				eval = -QuiescenceSearch(-beta, -alpha, cancellationToken);
 				board.UnmakeMove(moves[i], true);
 
 				if (eval >= beta)
