@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics;
+using System.Threading;
 
 namespace Chess.Core
 {
@@ -66,7 +67,24 @@ namespace Chess.Core
         [Obsolete("Don't use this, prefer StartSearch(CancellationToken)")]
         public void StartSearch()
         {
-            StartSearch(default);
+            StartSearch(CancellationToken.None);
+        }
+
+        public Move StartSearch(TimeSpan timeout)
+        {
+            using var cts = new CancellationTokenSource(timeout);
+
+            try
+            {
+                StartSearch(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            Debug.Assert(!BestMoveSoFar.IsNull);
+
+            return BestMoveSoFar;
         }
 
 		public void StartSearch(CancellationToken cancellationToken)
@@ -471,6 +489,5 @@ namespace Chess.Core
 
 			public int maxExtentionReachedInSearch;
 		}
-
-	}
+    }
 }

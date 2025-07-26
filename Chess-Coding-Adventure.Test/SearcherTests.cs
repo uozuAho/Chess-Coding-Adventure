@@ -6,8 +6,12 @@ namespace Chess_Coding_Adventure.Test;
 public class SearcherTests
 {
     [Fact]
-    public void ChoosesAMove()
+    public void OldThreadedSearchApi()
     {
+        // don't use search like this, prefer search.StartSearch(TimeSpan)
+        // this is the way the ChessAdventure Bot uses search, and I
+        // don't want to change the bot
+
         var board = Board.CreateBoard();
         var search = new Searcher(board);
 
@@ -54,6 +58,18 @@ public class SearcherTests
         }
 
         move.ShouldNotBeNull();
+        search.searchDiagnostics.numPositionsEvaluated.ShouldBeGreaterThan(10);
+    }
+
+    [Fact]
+    public void NiceTimeLimitedSearchApi()
+    {
+        var board = Board.CreateBoard();
+        var search = new Searcher(board);
+
+        var move = search.StartSearch(TimeSpan.FromMilliseconds(10));
+
+        move.IsNull.ShouldBeFalse();
         search.searchDiagnostics.numPositionsEvaluated.ShouldBeGreaterThan(10);
     }
 }
